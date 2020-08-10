@@ -44,7 +44,7 @@ static bool SaveResource(int type, ResourceItem* items, int pass);
 static void FreeResource(BareosResource* sres, int type);
 static void DumpResource(int type,
                          BareosResource* reshdr,
-                         void sendit(void* sock, const char* fmt, ...),
+                         bool sendit(void* sock, const char* fmt, ...),
                          void* sock,
                          bool hide_sensitive_data,
                          bool verbose);
@@ -94,13 +94,17 @@ static ResourceTable resources[] = {
 
 static void DumpResource(int type,
                          BareosResource* res,
-                         void sendit(void* sock, const char* fmt, ...),
+                         bool sendit(void* sock, const char* fmt, ...),
                          void* sock,
                          bool hide_sensitive_data,
                          bool verbose)
 {
   PoolMem buf;
   bool recurse = true;
+  OutputFormatter output_formatter =
+      OutputFormatter(sendit, sock, nullptr, nullptr);
+  OutputFormatterResource output_formatter_resource =
+      OutputFormatterResource(&output_formatter);
 
   if (!res) {
     sendit(sock, _("Warning: no \"%s\" resource (%d) defined.\n"),
@@ -114,10 +118,10 @@ static void DumpResource(int type,
 
   switch (type) {
     default:
-      res->PrintConfig(buf, *my_config);
+      res->PrintConfig(output_formatter_resource, *my_config,
+                       hide_sensitive_data, verbose);
       break;
   }
-  sendit(sock, "%s", buf.c_str());
 
   if (recurse && res->next_) {
     DumpResource(type, res->next_, sendit, sock, hide_sensitive_data, verbose);

@@ -98,33 +98,35 @@ enum
   CFG_TYPE_AUTOPASSWORD =
       5,             /* Password stored in clear when needed otherwise hashed */
   CFG_TYPE_NAME = 6, /* Name */
-  CFG_TYPE_STRNAME = 7,             /* String Name */
-  CFG_TYPE_RES = 8,                 /* Resource */
-  CFG_TYPE_ALIST_RES = 9,           /* List of resources */
-  CFG_TYPE_ALIST_STR = 10,          /* List of strings */
-  CFG_TYPE_ALIST_DIR = 11,          /* List of dirs */
-  CFG_TYPE_INT16 = 12,              /* 16 bits Integer */
-  CFG_TYPE_PINT16 = 13,             /* Positive 16 bits Integer (unsigned) */
-  CFG_TYPE_INT32 = 14,              /* 32 bits Integer */
-  CFG_TYPE_PINT32 = 15,             /* Positive 32 bits Integer (unsigned) */
-  CFG_TYPE_MSGS = 16,               /* Message resource */
-  CFG_TYPE_INT64 = 17,              /* 64 bits Integer */
-  CFG_TYPE_BIT = 18,                /* Bitfield */
-  CFG_TYPE_BOOL = 19,               /* Boolean */
-  CFG_TYPE_TIME = 20,               /* Time value */
-  CFG_TYPE_SIZE64 = 21,             /* 64 bits file size */
-  CFG_TYPE_SIZE32 = 22,             /* 32 bits file size */
-  CFG_TYPE_SPEED = 23,              /* Speed limit */
-  CFG_TYPE_DEFS = 24,               /* Definition */
-  CFG_TYPE_LABEL = 25,              /* Label */
-  CFG_TYPE_ADDRESSES = 26,          /* List of ip addresses */
-  CFG_TYPE_ADDRESSES_ADDRESS = 27,  /* Ip address */
-  CFG_TYPE_ADDRESSES_PORT = 28,     /* Ip port */
-  CFG_TYPE_PLUGIN_NAMES = 29,       /* Plugin Name(s) */
-  CFG_TYPE_STDSTR = 30,             /* String as std::string */
-  CFG_TYPE_STDSTRDIR = 31,          /* Directory as std::string */
-  CFG_TYPE_STR_VECTOR = 32,         /* std::vector<std::string> of any string */
-  CFG_TYPE_STR_VECTOR_OF_DIRS = 33, /* std::vector<std::string> of directories*/
+  CFG_TYPE_STRNAME = 7,            /* String Name */
+  CFG_TYPE_RES = 8,                /* Resource */
+  CFG_TYPE_ALIST_RES = 9,          /* List of resources */
+  CFG_TYPE_ALIST_STR = 10,         /* List of strings */
+  CFG_TYPE_ALIST_DIR = 11,         /* List of dirs */
+  CFG_TYPE_INT16 = 12,             /* 16 bits Integer */
+  CFG_TYPE_PINT16 = 13,            /* Positive 16 bits Integer (unsigned) */
+  CFG_TYPE_INT32 = 14,             /* 32 bits Integer */
+  CFG_TYPE_PINT32 = 15,            /* Positive 32 bits Integer (unsigned) */
+  CFG_TYPE_MSGS = 16,              /* Message resource */
+  CFG_TYPE_INT64 = 17,             /* 64 bits Integer */
+  CFG_TYPE_BIT = 18,               /* Bitfield */
+  CFG_TYPE_BOOL = 19,              /* Boolean */
+  CFG_TYPE_TIME = 20,              /* Time value */
+  CFG_TYPE_SIZE64 = 21,            /* 64 bits file size */
+  CFG_TYPE_SIZE32 = 22,            /* 32 bits file size */
+  CFG_TYPE_SPEED = 23,             /* Speed limit */
+  CFG_TYPE_DEFS = 24,              /* Definition */
+  CFG_TYPE_LABEL = 25,             /* Label */
+  CFG_TYPE_ADDRESSES = 26,         /* List of ip addresses */
+  CFG_TYPE_ADDRESSES_ADDRESS = 27, /* Ip address */
+  CFG_TYPE_ADDRESSES_PORT = 28,    /* Ip port */
+  CFG_TYPE_PLUGIN_NAMES = 29,      /* Plugin Name(s) */
+  CFG_TYPE_STDSTR = 30,            /* String as std::string */
+  CFG_TYPE_STDSTRDIR = 31,         /* Directory as std::string */
+  CFG_TYPE_STR_VECTOR = 32,        /* std::vector<std::string> of any string */
+  CFG_TYPE_STR_VECTOR_OF_DIRS =
+      33,                   /* std::vector<std::string> of directories */
+  CFG_TYPE_DIR_OR_CMD = 34, /* Directory or command (starting with "|") */
 
   /*
    * Director resource types. handlers in dird_conf.
@@ -191,11 +193,12 @@ typedef void(STORE_RES_HANDLER)(LEX* lc,
                                 ResourceItem* item,
                                 int index,
                                 int pass);
-typedef void(PRINT_RES_HANDLER)(ResourceItem* items,
-                                int i,
-                                PoolMem& cfg_str,
+typedef void(PRINT_RES_HANDLER)(ResourceItem& item,
+                                OutputFormatterResource& send,
                                 bool hide_sensitive_data,
-                                bool inherited);
+                                bool inherited,
+                                bool verbose);
+
 
 class QualifiedResourceNameTypeConverter;
 
@@ -269,7 +272,7 @@ class ConfigurationParser {
                     std::function<void()> ResourceSpecificInitializer);
   bool AppendToResourcesChain(BareosResource* new_resource, int rcode);
   bool RemoveResource(int rcode, const char* name);
-  void DumpResources(void sendit(void* sock, const char* fmt, ...),
+  void DumpResources(bool sendit(void* sock, const char* fmt, ...),
                      void* sock,
                      bool hide_sensitive_data = false);
   int GetResourceCode(const char* resource_type);
@@ -416,8 +419,11 @@ class ConfigurationParser {
   void SetResourceDefaultsParserPass2(ResourceItem* item);
 };
 
-void PrintMessage(void* sock, const char* fmt, ...);
+bool PrintMessage(void* sock, const char* fmt, ...);
 bool IsTlsConfigured(TlsResource* tls_resource);
+
+const char* GetName(ResourceItem& item, s_kw* keywords);
+bool HasDefaultValue(ResourceItem& item, s_kw* keywords);
 
 /*
  * Data type routines
