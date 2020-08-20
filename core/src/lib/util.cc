@@ -1151,7 +1151,7 @@ std::string getenv_std_string(std::string env_var)
 bool pm_append(void* pm_string, const char* fmt, ...)
 {
   PoolMem additionalstring;
-  PoolMem* pm = (PoolMem*)pm_string;
+  PoolMem* pm = static_cast<PoolMem*>(pm_string);
 
   va_list arg_ptr;
   va_start(arg_ptr, fmt);
