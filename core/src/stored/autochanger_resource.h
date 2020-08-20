@@ -36,7 +36,7 @@ class AutochangerResource : public BareosResource {
   virtual ~AutochangerResource() = default;
   AutochangerResource& operator=(const AutochangerResource& rhs);
   bool PrintConfig(OutputFormatterResource& send,
-                   const ConfigurationParser& /* unused */,
+                   const ConfigurationParser&,
                    bool hide_sensitive_data,
                    bool verbose = false) override;
 
