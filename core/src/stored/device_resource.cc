@@ -232,7 +232,7 @@ DeviceResource& DeviceResource::operator=(const DeviceResource& rhs)
 
 
 bool DeviceResource::PrintConfig(OutputFormatterResource& send,
-                                 const ConfigurationParser& /* unused */,
+                                 const ConfigurationParser&,
                                  bool hide_sensitive_data,
                                  bool verbose)
 {
