@@ -49,7 +49,7 @@ AutochangerResource& AutochangerResource::operator=(
 }
 
 bool AutochangerResource::PrintConfig(OutputFormatterResource& send,
-                                      const ConfigurationParser& /* unused */,
+                                      const ConfigurationParser&,
                                       bool hide_sensitive_data,
                                       bool verbose)
 {
